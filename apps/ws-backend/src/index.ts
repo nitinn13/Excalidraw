@@ -1,18 +1,26 @@
+// Import required modules
 import { WebSocket, WebSocketServer } from 'ws';
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from '@repo/backend-common/config';
 import { prismaClient } from "@repo/db/client";
 
+// Create a new WebSocket server listening on port 8080
 const wss = new WebSocketServer({ port: 8080 });
 
+// Define a `User` interface to keep track of connected users
 interface User {
-  ws: WebSocket,
-  rooms: string[],
-  userId: string
+  ws: WebSocket,      // The WebSocket connection
+  rooms: string[],    // Rooms the user is part of
+  userId: string      // Authenticated user ID
 }
 
+// Array to store connected users
 const users: User[] = [];
 
+/**
+ * Helper function to verify JWT token and return the userId.
+ * Returns null if token is invalid or malformed.
+ */
 function checkUser(token: string): string | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -32,6 +40,7 @@ function checkUser(token: string): string | null {
   return null;
 }
 
+// Event listener when a client connects to the WebSocket server
 wss.on('connection', function connection(ws, request) {
   const url = request.url;
   if (!url) {
