@@ -6,6 +6,7 @@ import { Pencil, Eye, EyeOff, ArrowRight, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import axios from "axios"
+import { HTTP_ENDPOINT } from "@/config"
 
 export default function SignIn() {
   const [username, setUsername] = useState("")
@@ -16,42 +17,52 @@ export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleSignin = async () => {
-    setIsLoading(true)
-    try {
-      const response = await axios.post("https://canvas.nitinxdev.fun/api/signin", {
-        username,
-        password,
-      })
-      const token = response.data.token
-      localStorage.setItem("token", token)
-      const room = await axios.get(`https://canvas.nitinxdev.fun/api/room/${username}`)
-      const roomId = room.data.room.id
-      router.push(`/canvas/${roomId}`)
-    } catch (error) {
-      console.error("Sign in failed:", error)
-    } finally {
-      setIsLoading(false)
-    }
+
+const handleSignin = async () => {
+  setIsLoading(true);
+
+  try {
+    const response = await axios.post(`${HTTP_ENDPOINT}/signin`, {
+      username,
+      password,
+    });
+
+    const token = response.data.token;
+    localStorage.setItem("token", token);
+
+    const room = await axios.get(`${HTTP_ENDPOINT}/room/${username}`);
+    const roomId = room.data.room.id;
+
+    router.push(`/canvas/${roomId}`);
+  } catch (error) {
+    console.error("Sign in failed:", error);
+  } finally {
+    setIsLoading(false);
   }
-  const handleDemoSignin = async () =>{
-     setIsLoading(true)
-    try {
-      const response = await axios.post("https://canvas.nitinxdev.fun/api/signin", {
-        username : demoUsername,
-        password : demoPassword,
-      })
-      const token = response.data.token
-      localStorage.setItem("token", token)
-      const room = await axios.get(`https://canvas.nitinxdev.fun/api/room/${demoUsername}`)
-      const roomId = room.data.room.id
-      router.push(`/canvas/${roomId}`)
-    } catch (error) {
-      console.error("Sign in failed:", error)
-    } finally {
-      setIsLoading(false)
-    }
+};
+
+const handleDemoSignin = async () => {
+  setIsLoading(true);
+
+  try {
+    const response = await axios.post(`${HTTP_ENDPOINT}/signin`, {
+      username: demoUsername,
+      password: demoPassword,
+    });
+
+    const token = response.data.token;
+    localStorage.setItem("token", token);
+
+    const room = await axios.get(`${HTTP_ENDPOINT}/room/${demoUsername}`);
+    const roomId = room.data.room.id;
+
+    router.push(`/canvas/${roomId}`);
+  } catch (error) {
+    console.error("Sign in failed:", error);
+  } finally {
+    setIsLoading(false);
   }
+};
 
   return (
     <div className="min-h-screen bg-white overflow-hidden relative">

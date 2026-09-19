@@ -6,6 +6,7 @@ import { Pencil, Eye, EyeOff, ArrowRight, Sparkles, User, Mail } from "lucide-re
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import axios from "axios"
+import { HTTP_ENDPOINT } from "@/config"
 
 export default function SignUp() {
   const [username, setUsername] = useState("")
@@ -16,34 +17,38 @@ export default function SignUp() {
   const router = useRouter()
 
   const handleSignup = async () => {
-    setIsLoading(true)
-    try {
-      const response = await axios.post("https://canvas.nitinxdev.fun/api/signup", {
-        username,
-        name,
-        password,
-      })
-      const token = response.data.token
-      localStorage.setItem("token", token)
-      const room = await axios.post(
-        "https://canvas.nitinxdev.fun/api/create-room",
-        {
-          roomName: username,
+  setIsLoading(true);
+
+  try {
+    const response = await axios.post(`${HTTP_ENDPOINT}/signup`, {
+      username,
+      name,
+      password,
+    });
+
+    const token = response.data.token;
+    localStorage.setItem("token", token);
+
+    const room = await axios.post(
+      `${HTTP_ENDPOINT}/create-room`,
+      {
+        roomName: username,
+      },
+      {
+        headers: {
+          Authorization: token,
         },
-        {
-          headers: {
-            Authorization: token,
-          },
-        },
-      )
-      const roomId = room.data.roomId
-      router.push(`/canvas/${roomId}`)
-    } catch (error) {
-      console.error("Sign up failed:", error)
-    } finally {
-      setIsLoading(false)
-    }
+      },
+    );
+
+    const roomId = room.data.roomId;
+    router.push(`/canvas/${roomId}`);
+  } catch (error) {
+    console.error("Sign up failed:", error);
+  } finally {
+    setIsLoading(false);
   }
+};
 
   return (
     <div className="min-h-screen bg-white overflow-hidden relative">
